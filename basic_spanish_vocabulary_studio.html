@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic Spanish Vocabulary Studio</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Custom CSS for 3D Flip & Micro-Animations -->
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 3D Flashcard Flip */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    /* Gentle shake animation for wrong answers */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .animate-shake {
+      animation: shake 0.34s ease-in-out;
+    }
+
+    /* Subtle fade-in */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.2s ease-out forwards;
+    }
+
+    /* Hide scrollbars cleanly for horizontal pill bars */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- ==================== TOP HEADER & DESKTOP NAVIGATION ==================== -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Brand -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-rose-500 flex items-center justify-center text-white font-extrabold text-sm shadow-sm">
+          ES
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold tracking-tight text-stone-900 leading-tight">Basic Spanish</h1>
+          <p class="text-[11px] font-medium text-stone-500 leading-tight">Vocabulary Studio</p>
+        </div>
+      </div>
+
+      <!-- Desktop 6-Tab Navigation -->
+      <nav class="hidden lg:flex items-center gap-1 bg-stone-100/90 p-1 rounded-xl border border-stone-200/60" aria-label="Main Navigation">
+        <button data-tab="type" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Type the Word
+        </button>
+        <button data-tab="choice" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          Multiple Choice
+        </button>
+        <button data-tab="flashcards" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+          Flashcards
+        </button>
+        <button data-tab="drill" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Gender Drill
+        </button>
+        <button data-tab="add" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          Add Words
+        </button>
+        <button data-tab="bank" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Word Bank
+        </button>
+      </nav>
+
+      <!-- Header Word Count & Active Deck Pill -->
+      <div class="flex items-center gap-2 shrink-0">
+        <span id="header-word-count" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 border border-stone-200/80">
+          0 words
+        </span>
+      </div>
+    </div>
+
+    <!-- Tablet / Medium Nav Row (visible between md and lg) -->
+    <div class="hidden md:flex lg:hidden border-t border-stone-100 bg-stone-50/70 px-4 py-1.5 justify-center">
+      <div class="flex items-center gap-1 overflow-x-auto no-scrollbar">
+        <button data-tab="type" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Type the Word</button>
+        <button data-tab="choice" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Multiple Choice</button>
+        <button data-tab="flashcards" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Flashcards</button>
+        <button data-tab="drill" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Gender Drill</button>
+        <button data-tab="add" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Add Words</button>
+        <button data-tab="bank" class="nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all">Word Bank</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== GLOBAL LESSON FILTER BAR ==================== -->
+  <div id="global-filter-bar" class="bg-white/80 border-b border-stone-200/70">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-2.5 flex items-center gap-2.5">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-stone-400 shrink-0">Deck:</span>
+      <div id="global-lesson-pills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 flex-1">
+        <!-- Dynamically populated lesson filter pills -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-5 pb-24 md:pb-12">
+
+    <!-- ==================== TAB 1: TYPE THE WORD (DEFAULT) ==================== -->
+    <section id="view-type" class="tab-view space-y-5 animate-fade-in">
+      <!-- Top Controls & Stats -->
+      <div class="bg-white rounded-2xl border border-stone-200/80 p-3.5 sm:p-4 shadow-sm flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <!-- Toggles -->
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input id="type-req-article" type="checkbox" checked class="w-4 h-4 rounded text-indigo-600 border-stone-300 focus:ring-indigo-500" />
+              <span class="text-xs font-semibold text-stone-700">Require article</span>
+            </label>
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input id="type-strict-accents" type="checkbox" class="w-4 h-4 rounded text-indigo-600 border-stone-300 focus:ring-indigo-500" />
+              <span class="text-xs font-semibold text-stone-700">Strict accents</span>
+            </label>
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input id="type-auto-audio" type="checkbox" checked class="w-4 h-4 rounded text-indigo-600 border-stone-300 focus:ring-indigo-500" />
+              <span class="text-xs font-semibold text-stone-700">Auto-pronounce</span>
+            </label>
+          </div>
+
+          <!-- Stats -->
+          <div class="flex items-center gap-3 text-xs">
+            <div class="flex items-center gap-1.5">
+              <span class="text-stone-400 font-semibold uppercase">Streak</span>
+              <span id="type-streak" class="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/70">0</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-stone-400 font-semibold uppercase">Accuracy</span>
+              <span id="type-accuracy" class="font-bold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-lg">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Recall Card -->
+      <div id="type-card" class="max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-8 space-y-5">
+        <!-- Card Header -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span id="type-lesson-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">La sala de clase</span>
+            <span id="type-review-badge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Needs Review</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="type-queue-pos" class="text-xs font-semibold text-stone-400">1 / 25</span>
+            <button id="type-audio-btn" type="button" class="p-2 rounded-xl bg-stone-100 hover:bg-indigo-50 hover:text-indigo-600 text-stone-600 transition-colors" title="Listen to Spanish pronunciation" aria-label="Listen">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- English Prompt -->
+        <div class="text-center py-2 space-y-2">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-stone-400">Translate to Spanish</p>
+          <h2 id="type-prompt" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">chalkboard</h2>
+          <!-- Progressive Hint Display -->
+          <div id="type-hint-display" class="hidden pt-2">
+            <span id="type-hint-text" class="inline-block font-mono text-base sm:text-lg font-bold tracking-widest px-4 py-1.5 rounded-xl bg-indigo-50/80 text-indigo-700 border border-indigo-200/70"></span>
+          </div>
+        </div>
+
+        <!-- Input Form -->
+        <form id="type-form" class="space-y-3" autocomplete="off">
+          <div class="relative">
+            <input
+              id="type-input"
+              type="text"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="Type article + Spanish word..."
+              class="w-full px-4 py-3.5 rounded-2xl bg-stone-50 border-2 border-stone-200 text-lg font-semibold text-stone-900 placeholder-stone-400 text-center focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+            />
+          </div>
+
+          <!-- Quick-Tap Spanish Accent Buttons -->
+          <div class="flex flex-wrap items-center justify-center gap-1.5" aria-label="Spanish accent characters">
+            <button type="button" data-accent="á" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">á</button>
+            <button type="button" data-accent="é" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">é</button>
+            <button type="button" data-accent="í" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">í</button>
+            <button type="button" data-accent="ó" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">ó</button>
+            <button type="button" data-accent="ú" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">ú</button>
+            <button type="button" data-accent="ü" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">ü</button>
+            <button type="button" data-accent="ñ" class="accent-btn w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-stone-100 hover:bg-indigo-100 hover:text-indigo-700 active:scale-95 text-stone-700 font-bold text-base border border-stone-200/80 transition-all">ñ</button>
+          </div>
+
+          <!-- Feedback Box -->
+          <div id="type-feedback" class="hidden rounded-2xl p-3.5 text-center text-sm font-medium"></div>
+
+          <!-- Action Buttons -->
+          <div id="type-actions-pre" class="grid grid-cols-12 gap-2.5 pt-1">
+            <button type="button" id="type-hint-btn" class="col-span-4 py-3 px-3 rounded-2xl bg-stone-100 hover:bg-stone-200/80 text-stone-700 font-semibold text-sm transition-colors">
+              Hint
+            </button>
+            <button type="button" id="type-reveal-btn" class="col-span-3 py-3 px-3 rounded-2xl bg-white border border-stone-200 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 text-stone-600 font-semibold text-sm transition-colors">
+              Reveal
+            </button>
+            <button type="submit" id="type-submit-btn" class="col-span-5 py-3 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98]">
+              Check ↵
+            </button>
+          </div>
+
+          <div id="type-actions-post" class="hidden pt-1">
+            <button type="button" id="type-next-btn" class="w-full py-3.5 px-6 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.99]">
+              Next Word → <span class="opacity-60 font-normal ml-1">(Enter)</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Empty State -->
+      <div id="type-empty" class="hidden max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/80 p-8 text-center space-y-3">
+        <p class="text-lg font-bold text-stone-800">No words in this deck</p>
+        <p class="text-sm text-stone-500">Select another lesson in the Deck bar above or add new words.</p>
+      </div>
+
+      <!-- Gender Color Legend -->
+      <div class="max-w-xl mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium text-stone-500">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>Masculine (el / los)</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>Feminine (la / las)</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Verb / Other</span>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: MULTIPLE CHOICE ==================== -->
+    <section id="view-choice" class="tab-view hidden space-y-5 animate-fade-in">
+      <!-- Top Bar -->
+      <div class="bg-white rounded-2xl border border-stone-200/80 p-3.5 sm:p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button id="mc-dir-btn" type="button" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/70 transition-colors">
+            EN → ES
+          </button>
+          <span class="text-xs text-stone-400 hidden sm:inline">Keys 1–4 to pick</span>
+        </div>
+
+        <div class="flex items-center gap-3 text-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="text-stone-400 font-semibold uppercase">Streak</span>
+            <span id="mc-streak" class="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/70">0</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-stone-400 font-semibold uppercase">Accuracy</span>
+            <span id="mc-accuracy" class="font-bold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-lg">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multiple Choice Card -->
+      <div id="mc-card" class="max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <span id="mc-lesson-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">La sala de clase</span>
+          <button id="mc-audio-btn" type="button" class="p-2 rounded-xl bg-stone-100 hover:bg-indigo-50 hover:text-indigo-600 text-stone-600 transition-colors" title="Pronounce Spanish word" aria-label="Listen">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+        </div>
+
+        <div class="text-center py-2 space-y-2">
+          <p id="mc-prompt-label" class="text-[11px] font-bold uppercase tracking-widest text-stone-400">Choose the Spanish word</p>
+          <div id="mc-prompt" class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900 flex flex-wrap items-center justify-center gap-2.5">
+            <!-- Prompt injected by JS -->
+          </div>
+        </div>
+
+        <!-- 4 Option Buttons -->
+        <div id="mc-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Injected by JS -->
+        </div>
+
+        <!-- Feedback & Next -->
+        <div id="mc-feedback" class="hidden rounded-2xl p-3 text-center text-sm font-semibold"></div>
+        <div id="mc-next-wrap" class="hidden text-center">
+          <button id="mc-next-btn" type="button" class="w-full sm:w-auto px-8 py-3 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm transition-colors shadow-sm">
+            Next Question →
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="mc-empty" class="hidden max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/80 p-8 text-center space-y-3">
+        <p class="text-lg font-bold text-stone-800">Not enough words to quiz</p>
+        <p class="text-sm text-stone-500">Select a deck with at least 1 word (and have at least 2 words total in your Word Bank).</p>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: FLASHCARDS ==================== -->
+    <section id="view-flashcards" class="tab-view hidden space-y-5 animate-fade-in">
+      <!-- Controls Bar -->
+      <div class="bg-white rounded-2xl border border-stone-200/80 p-3.5 sm:p-4 shadow-sm flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-2.5">
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+            <input id="fc-hide-article" type="checkbox" class="w-4 h-4 rounded text-indigo-600 border-stone-300 focus:ring-indigo-500" />
+            <span class="text-xs sm:text-sm font-medium text-stone-700">Hide article on front</span>
+          </label>
+
+          <div class="flex items-center gap-2">
+            <button id="fc-dir-btn" type="button" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-stone-100 hover:bg-stone-200/80 text-stone-700 transition-colors border border-stone-200/70">
+              ES → EN
+            </button>
+            <button id="fc-shuffle-btn" type="button" class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-700 transition-colors border border-stone-200/70" title="Shuffle deck" aria-label="Shuffle">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+            </button>
+            <span id="fc-progress-text" class="text-xs font-semibold text-stone-500 pl-1">0 / 0</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+          <div id="fc-progress-bar" class="h-full bg-indigo-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Flashcard Stage -->
+      <div id="fc-stage" class="relative">
+        <div id="fc-card-wrapper" class="perspective-1000 w-full max-w-xl mx-auto">
+          <div id="fc-card" class="relative w-full min-h-[290px] sm:min-h-[330px] cursor-pointer transition-transform duration-500 transform-style-3d select-none">
+
+            <!-- Card Front -->
+            <div class="absolute inset-0 backface-hidden bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-8 flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2">
+                <span id="fc-front-meta" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">La sala de clase</span>
+                <div class="flex items-center gap-2">
+                  <span id="fc-review-badge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Needs Review</span>
+                  <button id="fc-front-audio" type="button" class="p-2.5 rounded-xl bg-stone-100 hover:bg-indigo-50 hover:text-indigo-600 text-stone-600 transition-colors" title="Listen" aria-label="Listen">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="my-auto py-5 text-center">
+                <p id="fc-front-hint" class="text-[11px] font-bold uppercase tracking-widest text-stone-400 mb-3">Spanish</p>
+                <div id="fc-front-content" class="flex flex-wrap items-center justify-center gap-2.5"></div>
+              </div>
+
+              <div class="text-center">
+                <span class="text-xs font-medium text-stone-400">Tap card or press Space to flip</span>
+              </div>
+            </div>
+
+            <!-- Card Back -->
+            <div class="absolute inset-0 backface-hidden rotate-y-180 bg-white rounded-3xl border-2 border-indigo-100 shadow-md p-6 sm:p-8 flex flex-col justify-between">
+              <div class="flex items-center justify-between gap-2">
+                <span id="fc-back-meta" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">La sala de clase</span>
+                <button id="fc-back-audio" type="button" class="p-2.5 rounded-xl bg-stone-100 hover:bg-indigo-50 hover:text-indigo-600 text-stone-600 transition-colors" title="Listen" aria-label="Listen">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                </button>
+              </div>
+
+              <div class="my-auto py-4 text-center space-y-3">
+                <p id="fc-back-hint" class="text-[11px] font-bold uppercase tracking-widest text-stone-400">English</p>
+                <div id="fc-back-content" class="flex flex-wrap items-center justify-center gap-2.5"></div>
+                <div id="fc-back-sub" class="pt-1 text-sm font-medium text-stone-500"></div>
+              </div>
+
+              <div class="text-center">
+                <span class="text-xs font-medium text-stone-400">Rate your recall below</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Grading Buttons -->
+        <div id="fc-grade-controls" class="max-w-xl mx-auto mt-5 grid grid-cols-2 gap-3">
+          <button id="fc-btn-again" type="button" class="py-3.5 px-4 rounded-2xl font-semibold text-sm sm:text-base bg-white border-2 border-rose-200 text-rose-700 hover:bg-rose-50 active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Again
+          </button>
+          <button id="fc-btn-gotit" type="button" class="py-3.5 px-4 rounded-2xl font-semibold text-sm sm:text-base bg-emerald-600 hover:bg-emerald-700 text-white active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+            Got It
+          </button>
+        </div>
+
+        <!-- Empty / Session Complete State -->
+        <div id="fc-empty-state" class="hidden max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/80 shadow-sm p-8 text-center space-y-4">
+          <div id="fc-empty-icon" class="w-12 h-12 mx-auto rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">✓</div>
+          <h2 id="fc-empty-title" class="text-xl font-bold text-stone-900">Deck Complete!</h2>
+          <p id="fc-empty-desc" class="text-sm text-stone-500 max-w-sm mx-auto">Great work! Ready for another round?</p>
+          <div class="pt-1 flex flex-wrap items-center justify-center gap-3">
+            <button id="fc-restart-btn" type="button" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors shadow-sm">
+              Study Again
+            </button>
+            <button id="fc-review-missed-btn" type="button" class="hidden px-5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-sm font-semibold transition-colors">
+              Review Flagged Words
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: GENDER DRILL ==================== -->
+    <section id="view-drill" class="tab-view hidden space-y-5 animate-fade-in">
+      <!-- Top Stats -->
+      <div class="bg-white rounded-2xl border border-stone-200/80 p-3.5 sm:p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <span class="text-xs font-semibold text-stone-500">Pick <span class="text-blue-600 font-bold">el / los</span> or <span class="text-rose-600 font-bold">la / las</span> <span class="hidden sm:inline text-stone-400">(keys 1–4)</span></span>
+        <div class="flex items-center gap-3 text-xs">
+          <div class="flex items-center gap-1.5">
+            <span class="text-stone-400 font-semibold uppercase">Streak</span>
+            <span id="drill-streak" class="font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/70">0</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-stone-400 font-semibold uppercase">Accuracy</span>
+            <span id="drill-accuracy" class="font-bold text-stone-700 bg-stone-100 px-2 py-0.5 rounded-lg">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drill Card -->
+      <div id="drill-card" class="max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/90 shadow-md p-6 sm:p-8 text-center space-y-6">
+        <div class="flex items-center justify-between">
+          <span id="drill-lesson-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-500">La sala de clase</span>
+          <button id="drill-audio-btn" type="button" class="p-2 rounded-xl bg-stone-100 hover:bg-indigo-50 hover:text-indigo-600 text-stone-600 transition-colors" title="Pronounce noun" aria-label="Listen">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+        </div>
+
+        <div class="py-3 space-y-2.5">
+          <p class="text-[11px] font-bold uppercase tracking-widest text-stone-400">Choose the definite article</p>
+          <div class="flex flex-wrap items-center justify-center gap-3 text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">
+            <span id="drill-blank" class="inline-flex items-center justify-center min-w-[70px] px-3 py-1 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 text-stone-400 transition-all">___</span>
+            <span id="drill-noun">mapa</span>
+          </div>
+          <p id="drill-english" class="text-base sm:text-lg font-medium text-stone-500 pt-1">map</p>
+        </div>
+
+        <div id="drill-feedback" class="min-h-[26px] text-sm font-semibold flex items-center justify-center"></div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button data-article="el" type="button" class="drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-blue-200 bg-blue-50/50 hover:bg-blue-100/70 text-blue-800 font-bold text-xl transition-all active:scale-95">
+            el
+            <span class="hidden sm:inline-block absolute top-1.5 right-2 text-[10px] font-semibold text-blue-400">1</span>
+          </button>
+          <button data-article="la" type="button" class="drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-800 font-bold text-xl transition-all active:scale-95">
+            la
+            <span class="hidden sm:inline-block absolute top-1.5 right-2 text-[10px] font-semibold text-rose-400">2</span>
+          </button>
+          <button data-article="los" type="button" class="drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-blue-200 bg-blue-50/50 hover:bg-blue-100/70 text-blue-800 font-bold text-xl transition-all active:scale-95">
+            los
+            <span class="hidden sm:inline-block absolute top-1.5 right-2 text-[10px] font-semibold text-blue-400">3</span>
+          </button>
+          <button data-article="las" type="button" class="drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-800 font-bold text-xl transition-all active:scale-95">
+            las
+            <span class="hidden sm:inline-block absolute top-1.5 right-2 text-[10px] font-semibold text-rose-400">4</span>
+          </button>
+        </div>
+
+        <div id="drill-next-wrap" class="hidden pt-1">
+          <button id="drill-next-btn" type="button" class="w-full sm:w-auto px-8 py-3 rounded-2xl bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm transition-colors shadow-sm">
+            Next Noun →
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty Drill State -->
+      <div id="drill-empty" class="hidden max-w-xl mx-auto bg-white rounded-3xl border border-stone-200/80 p-8 text-center space-y-3">
+        <p class="text-lg font-bold text-stone-800">No nouns with el/la/los/las in this deck</p>
+        <p class="text-sm text-stone-500">Pick another lesson above or add nouns with definite articles.</p>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: ADD WORDS ==================== -->
+    <section id="view-add" class="tab-view hidden space-y-6 animate-fade-in">
+      <!-- Bulk Import Card -->
+      <div class="bg-white rounded-3xl border border-stone-200/80 shadow-sm p-5 sm:p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-lg font-bold text-stone-900">Bulk Import Vocabulary</h2>
+            <p class="text-xs sm:text-sm text-stone-500">
+              Paste one word per line using <code class="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">-</code>, <code class="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">=</code>, <code class="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">,</code>, <code class="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">|</code>, <code class="bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">:</code>, or tab. Automatically detects <code class="bg-stone-100 px-1 rounded">Spanish - English</code> or <code class="bg-stone-100 px-1 rounded">English - Spanish</code>.
+            </p>
+          </div>
+          <button id="bulk-sample-btn" type="button" class="self-start sm:self-auto text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100/80 px-3 py-1.5 rounded-lg transition-colors shrink-0">
+            Fill Example
+          </button>
+        </div>
+
+        <!-- Lesson Tag & Direction Selector -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+          <div class="sm:col-span-7">
+            <label for="bulk-lesson" class="block text-xs font-semibold text-stone-600 mb-1">Lesson / Tag</label>
+            <input id="bulk-lesson" type="text" list="lesson-suggestions" placeholder="e.g. Lesson 2: Family, Chapter 3..." class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400" />
+          </div>
+          <div class="sm:col-span-5">
+            <label for="bulk-order" class="block text-xs font-semibold text-stone-600 mb-1">Line Format</label>
+            <select id="bulk-order" class="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm font-medium text-stone-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+              <option value="auto">Auto-detect (by article)</option>
+              <option value="es-en">Spanish - English</option>
+              <option value="en-es">English - Spanish</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Textarea -->
+        <div>
+          <label for="bulk-textarea" class="block text-xs font-semibold text-stone-600 mb-1">Vocabulary List</label>
+          <textarea id="bulk-textarea" rows="6" class="w-full p-4 rounded-2xl bg-stone-50 border border-stone-200 text-sm font-mono text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 leading-relaxed" placeholder="el cuaderno - notebook
+la ventana - window
+chair - la silla
+hablar - to speak"></textarea>
+        </div>
+
+        <!-- Live Preview -->
+        <div id="bulk-preview-box" class="hidden rounded-2xl border border-stone-200 bg-stone-50/70 p-4 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Live Preview</span>
+              <span id="bulk-parsed-count" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">0 ready</span>
+            </div>
+            <button id="bulk-clear-btn" type="button" class="text-xs font-medium text-stone-500 hover:text-stone-700">Clear</button>
+          </div>
+          <div id="bulk-preview-list" class="max-h-56 overflow-y-auto space-y-1.5 pr-1"></div>
+          <div class="pt-1 flex justify-end">
+            <button id="bulk-import-btn" type="button" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98]">
+              Add All Parsed Words
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick-Add Single Word Form -->
+      <div class="bg-white rounded-3xl border border-stone-200/80 shadow-sm p-5 sm:p-6 space-y-4">
+        <div>
+          <h2 class="text-base font-bold text-stone-900">Quick-Add Single Word</h2>
+          <p class="text-xs text-stone-500">Add one word directly with its article and lesson tag.</p>
+        </div>
+
+        <form id="quick-add-form" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+          <div class="sm:col-span-2">
+            <label for="qa-article" class="block text-xs font-semibold text-stone-600 mb-1">Article</label>
+            <select id="qa-article" class="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm font-medium text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
+              <option value="el">el</option>
+              <option value="la">la</option>
+              <option value="los">los</option>
+              <option value="las">las</option>
+              <option value="un">un</option>
+              <option value="una">una</option>
+              <option value="unos">unos</option>
+              <option value="unas">unas</option>
+              <option value="">none</option>
+            </select>
+          </div>
+          <div class="sm:col-span-4">
+            <label for="qa-word" class="block text-xs font-semibold text-stone-600 mb-1">Spanish Word</label>
+            <input id="qa-word" type="text" required placeholder="e.g. ventana" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+          </div>
+          <div class="sm:col-span-3">
+            <label for="qa-english" class="block text-xs font-semibold text-stone-600 mb-1">English Meaning</label>
+            <input id="qa-english" type="text" required placeholder="e.g. window" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+          </div>
+          <div class="sm:col-span-3">
+            <label for="qa-lesson" class="block text-xs font-semibold text-stone-600 mb-1">Lesson Tag</label>
+            <input id="qa-lesson" type="text" list="lesson-suggestions" placeholder="La sala de clase" class="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+          </div>
+          <div class="sm:col-span-12 flex justify-end pt-1">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-sm font-semibold transition-colors shadow-sm">
+              + Add Word
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <datalist id="lesson-suggestions"></datalist>
+    </section>
+
+    <!-- ==================== TAB 6: WORD BANK ==================== -->
+    <section id="view-bank" class="tab-view hidden space-y-4 animate-fade-in">
+      <!-- Search & Filter Card -->
+      <div class="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-sm space-y-3">
+        <div class="relative">
+          <svg class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input id="bank-search" type="text" placeholder="Search Spanish, English, or lesson..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-stone-50 border border-stone-200 text-sm text-stone-800 placeholder-stone-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+        </div>
+
+        <!-- Gender / Status Filter Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <button data-gfilter="all" type="button" class="bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">All</button>
+          <button data-gfilter="m" type="button" class="bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Masculine</button>
+          <button data-gfilter="f" type="button" class="bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Feminine</button>
+          <button data-gfilter="none" type="button" class="bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Verb / Other</button>
+          <button data-gfilter="review" type="button" class="bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">Needs Review</button>
+        </div>
+      </div>
+
+      <!-- Export / Import / Backup Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+        <p id="bank-count-label" class="text-xs font-semibold text-stone-500">Showing 0 words</p>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button id="export-copy-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-xs font-semibold text-stone-700 transition-colors">
+            Copy Text
+          </button>
+          <button id="export-txt-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-xs font-semibold text-stone-700 transition-colors">
+            .TXT
+          </button>
+          <button id="export-json-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-xs font-semibold text-stone-700 transition-colors">
+            .JSON
+          </button>
+          <label class="cursor-pointer px-2.5 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-xs font-semibold text-indigo-700 transition-colors">
+            Import File
+            <input id="import-file-input" type="file" accept=".json,.txt" class="hidden" />
+          </label>
+          <button id="restore-defaults-btn" type="button" class="px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 hover:bg-stone-50 text-xs font-semibold text-stone-600 transition-colors" title="Safely add back any missing default lessons without deleting your words">
+            Restore Defaults
+          </button>
+        </div>
+      </div>
+
+      <!-- Word List -->
+      <div id="bank-list" class="space-y-2">
+        <!-- Rendered by JS (supports inline editing) -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MOBILE BOTTOM NAVIGATION (6 TABS) ==================== -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 px-1 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]" aria-label="Mobile Navigation">
+    <div class="grid grid-cols-6 gap-0.5 max-w-md mx-auto">
+      <button data-tab="type" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Type
+      </button>
+      <button data-tab="choice" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        Quiz
+      </button>
+      <button data-tab="flashcards" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        Cards
+      </button>
+      <button data-tab="drill" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Gender
+      </button>
+      <button data-tab="add" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Add
+      </button>
+      <button data-tab="bank" class="mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        Bank
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== CONFIRMATION MODAL ==================== -->
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl border border-stone-200 shadow-xl w-full max-w-sm p-6 space-y-4 animate-fade-in">
+      <h3 id="confirm-title" class="text-lg font-bold text-stone-900">Confirm Action</h3>
+      <p id="confirm-message" class="text-sm text-stone-500 leading-relaxed"></p>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="confirm-cancel-btn" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold text-stone-600 hover:bg-stone-100">Cancel</button>
+        <button id="confirm-ok-btn" type="button" class="px-5 py-2 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- ==================== APPLICATION SCRIPT ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ---------------------------------------------------------------
+         1. CONSTANTS & PRE-LOADED VOCABULARY DECKS
+      --------------------------------------------------------------- */
+      const STORAGE_KEY = 'basic_spanish_vocab_studio_v1';
+      const MERGE_FLAG_KEY = 'basic_spanish_vocab_v2_sala_merged';
+      const VALID_ARTICLES = ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas'];
+      const DEFINITE_ARTICLES = ['el', 'la', 'los', 'las'];
+      const DEFAULT_LESSON = 'La sala de clase';
+
+      const LA_SALA_DE_CLASE_RAW = [
+        { article: 'la',  word: 'tarea',         english: 'assignment',       lesson: 'La sala de clase' },
+        { article: 'la',  word: 'mochila',       english: 'backpack',         lesson: 'La sala de clase' },
+        { article: 'el',  word: 'libro',         english: 'book',             lesson: 'La sala de clase' },
+        { article: 'la',  word: 'silla',         english: 'chair',            lesson: 'La sala de clase' },
+        { article: 'la',  word: 'tiza',          english: 'chalk',            lesson: 'La sala de clase' },
+        { article: 'la',  word: 'pizarra',       english: 'chalkboard',       lesson: 'La sala de clase' },
+        { article: 'la',  word: 'sala de clase', english: 'classroom',        lesson: 'La sala de clase' },
+        { article: 'el',  word: 'reloj',         english: 'clock',            lesson: 'La sala de clase' },
+        { article: 'el',  word: 'escritorio',    english: 'desk',             lesson: 'La sala de clase' },
+        { article: 'el',  word: 'diccionario',   english: 'dictionary',       lesson: 'La sala de clase' },
+        { article: 'el',  word: 'borrador',      english: 'eraser',           lesson: 'La sala de clase' },
+        { article: 'la',  word: 'lección',       english: 'lesson',           lesson: 'La sala de clase' },
+        { article: 'las', word: 'luces',         english: 'lights',           lesson: 'La sala de clase' },
+        { article: 'el',  word: 'mapa',          english: 'map',              lesson: 'La sala de clase' },
+        { article: 'el',  word: 'cuaderno',      english: 'notebook',         lesson: 'La sala de clase' },
+        { article: 'el',  word: 'papel',         english: 'paper',            lesson: 'La sala de clase' },
+        { article: 'la',  word: 'pluma',         english: 'pen',              lesson: 'La sala de clase' },
+        { article: 'el',  word: 'lápiz',         english: 'pencil',           lesson: 'La sala de clase' },
+        { article: 'la',  word: 'regla',         english: 'ruler',            lesson: 'La sala de clase' },
+        { article: 'la',  word: 'escuela',       english: 'school',           lesson: 'La sala de clase' },
+        { article: 'el',  word: 'estudiante',    english: 'student (male)',   lesson: 'La sala de clase' },
+        { article: 'la',  word: 'estudiante',    english: 'student (female)', lesson: 'La sala de clase' },
+        { article: 'el',  word: 'maestro',       english: 'teacher (male)',   lesson: 'La sala de clase' },
+        { article: 'la',  word: 'maestra',       english: 'teacher (female)', lesson: 'La sala de clase' },
+        { article: 'la',  word: 'pared',         english: 'wall',             lesson: 'La sala de clase' }
+      ];
+
+      const EXCEPTIONS_STARTER_RAW = [
+        { article: 'el', word: 'día',      english: 'day',      lesson: 'Lesson 1: Gender Exceptions' },
+        { article: 'el', word: 'problema', english: 'problem',  lesson: 'Lesson 1: Gender Exceptions' },
+        { article: 'la', word: 'mano',     english: 'hand',     lesson: 'Lesson 1: Gender Exceptions' },
+        { article: 'el', word: 'agua',     english: 'water',    lesson: 'Lesson 1: Gender Exceptions' },
+        { article: 'la', word: 'foto',     english: 'photo',    lesson: 'Lesson 1: Gender Exceptions' },
+        { article: 'el', word: 'idioma',   english: 'language', lesson: 'Lesson 1: Gender Exceptions' }
+      ];
+
+      function buildWordRecords(rawList) {
+        const now = Date.now();
+        return rawList.map((item, idx) => ({
+          id: 'w_' + now.toString(36) + '_' + idx + '_' + Math.random().toString(36).slice(2, 6),
+          article: item.article || '',
+          word: item.word,
+          english: item.english,
+          lesson: item.lesson || DEFAULT_LESSON,
+          gender: getGenderFromArticle(item.article),
+          needsReview: false,
+          correctCount: 0,
+          wrongCount: 0,
+          createdAt: now + idx
+        }));
+      }
+
+      /* ---------------------------------------------------------------
+         2. APPLICATION STATE
+      --------------------------------------------------------------- */
+      let vocab = [];
+      let activeTab = 'type'; // Default Active Tab: Type the Word
+      let globalFilter = 'lesson:' + DEFAULT_LESSON; // Default to "La sala de clase"
+
+      // Type the Word State
+      let typeQueue = [];
+      let typeIndex = 0;
+      let typeCurrent = null;
+      let typeAnswered = false;
+      let typeRevealed = false;
+      let typeHintLevel = 0;
+      let typeStreak = 0;
+      let typeTotal = 0;
+      let typeCorrect = 0;
+
+      // Multiple Choice State
+      let mcDirection = 'en-es'; // 'en-es' | 'es-en'
+      let mcCurrent = null;
+      let mcOptions = [];
+      let mcAnswered = false;
+      let mcStreak = 0;
+      let mcTotal = 0;
+      let mcCorrect = 0;
+      let mcAutoTimer = null;
+
+      // Flashcards State
+      let fcQueue = [];
+      let fcIndex = 0;
+      let fcFlipped = false;
+      let fcDirection = 'es-en';
+      let fcHideArticle = false;
+      let fcSessionMissed = 0;
+
+      // Gender Drill State
+      let drillCurrent = null;
+      let drillAnswered = false;
+      let drillStreak = 0;
+      let drillTotal = 0;
+      let drillCorrect = 0;
+      let drillAutoTimer = null;
+
+      // Word Bank State
+      let bankSearch = '';
+      let bankGenderFilter = 'all';
+      let bankEditingId = null;
+
+      // Bulk Parser State
+      let parsedBulkItems = [];
+
+      // Confirmation Modal Callback
+      let confirmCallback = null;
+
+      /* ---------------------------------------------------------------
+         3. UTILITY FUNCTIONS
+      --------------------------------------------------------------- */
+      function getGenderFromArticle(article) {
+        const a = (article || '').toLowerCase().trim();
+        if (a === 'el' || a === 'los' || a === 'un' || a === 'unos') return 'm';
+        if (a === 'la' || a === 'las' || a === 'una' || a === 'unas') return 'f';
+        return 'none';
+      }
+
+      function getBadgeClasses(gender) {
+        if (gender === 'm') return 'bg-blue-50 text-blue-700 border-blue-200';
+        if (gender === 'f') return 'bg-rose-50 text-rose-700 border-rose-200';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      }
+
+      function formatFullSpanish(item) {
+        return item.article ? `${item.article} ${item.word}` : item.word;
+      }
+
+      function stripAccents(str) {
+        return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      }
+
+      function normalizeInput(str) {
+        return String(str).trim().replace(/\s+/g, ' ').toLowerCase();
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function generateId() {
+        return 'w_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+      }
+
+      function shuffleArray(arr) {
+        const copy = arr.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function getUniqueLessons() {
+        const set = new Set();
+        vocab.forEach(w => {
+          if (w.lesson && w.lesson.trim()) set.add(w.lesson.trim());
+        });
+        // Keep "La sala de clase" first if present, then alphabetical
+        return Array.from(set).sort((a, b) => {
+          if (a === DEFAULT_LESSON) return -1;
+          if (b === DEFAULT_LESSON) return 1;
+          return a.localeCompare(b, undefined, { numeric: true });
+        });
+      }
+
+      function getActiveDeck() {
+        if (globalFilter === 'all') return vocab.slice();
+        if (globalFilter === 'review') return vocab.filter(w => w.needsReview);
+        if (globalFilter.startsWith('lesson:')) {
+          const lesson = globalFilter.slice(7);
+          return vocab.filter(w => w.lesson === lesson);
+        }
+        return vocab.slice();
+      }
+
+      /* ---------------------------------------------------------------
+         4. STORAGE & SAFE MERGE
+      --------------------------------------------------------------- */
+      function wordSignature(item) {
+        return `${(item.article || '').toLowerCase()}|${(item.word || '').toLowerCase()}|${(item.lesson || '').toLowerCase()}`;
+      }
+
+      function mergeDefaultDecks(existingList) {
+        const existingSigs = new Set(existingList.map(wordSignature));
+        const defaults = buildWordRecords([...LA_SALA_DE_CLASE_RAW, ...EXCEPTIONS_STARTER_RAW]);
+        let addedCount = 0;
+        const merged = existingList.slice();
+        defaults.forEach(item => {
+          if (!existingSigs.has(wordSignature(item))) {
+            merged.push(item);
+            existingSigs.add(wordSignature(item));
+            addedCount++;
+          }
+        });
+        return { merged, addedCount };
+      }
+
+      function loadVocab() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              vocab = parsed.map(item => ({
+                ...item,
+                article: item.article || '',
+                gender: getGenderFromArticle(item.article)
+              }));
+              // One-time safe merge so existing users get "La sala de clase" without losing their words
+              if (!localStorage.getItem(MERGE_FLAG_KEY)) {
+                const { merged } = mergeDefaultDecks(vocab);
+                vocab = merged;
+                localStorage.setItem(MERGE_FLAG_KEY, '1');
+                saveVocab();
+              }
+              // Ensure default filter exists; fallback to 'all' if user deleted it
+              if (!vocab.some(w => w.lesson === DEFAULT_LESSON)) {
+                globalFilter = 'all';
+              }
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Error loading localStorage:', err);
+        }
+
+        // First-time load
+        vocab = buildWordRecords([...LA_SALA_DE_CLASE_RAW, ...EXCEPTIONS_STARTER_RAW]);
+        try {
+          localStorage.setItem(MERGE_FLAG_KEY, '1');
+        } catch (e) {}
+        saveVocab();
+      }
+
+      function saveVocab() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(vocab));
+        } catch (err) {
+          console.error('Error saving to localStorage:', err);
+        }
+        renderGlobalChrome();
+      }
+
+      /* ---------------------------------------------------------------
+         5. SPEECH SYNTHESIS (Spanish Audio)
+      --------------------------------------------------------------- */
+      function speakSpanish(text) {
+        if (!text || !('speechSynthesis' in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          const voices = window.speechSynthesis.getVoices();
+          const preferred =
+            voices.find(v => v.lang === 'es-MX') ||
+            voices.find(v => v.lang === 'es-ES') ||
+            voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
+          if (preferred) {
+            utterance.voice = preferred;
+            utterance.lang = preferred.lang;
+          } else {
+            utterance.lang = 'es-MX';
+          }
+          utterance.rate = 0.92;
+          window.speechSynthesis.speak(utterance);
+        } catch (err) {
+          console.error('Speech synthesis error:', err);
+        }
+      }
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.getVoices();
+        };
+      }
+
+      /* ---------------------------------------------------------------
+         6. TOASTS & CONFIRMATION MODAL
+      --------------------------------------------------------------- */
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        const colorClass =
+          type === 'error'
+            ? 'bg-rose-600 text-white'
+            : type === 'info'
+            ? 'bg-stone-800 text-white'
+            : 'bg-emerald-600 text-white';
+        el.className = `pointer-events-auto px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-semibold animate-fade-in ${colorClass}`;
+        el.textContent = message;
+        container.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transition = 'opacity 0.25s ease';
+          setTimeout(() => el.remove(), 260);
+        }, 2500);
+      }
+
+      function openConfirmModal(title, message, onConfirm) {
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-message').textContent = message;
+        confirmCallback = onConfirm;
+        document.getElementById('confirm-modal').classList.remove('hidden');
+      }
+
+      function closeConfirmModal() {
+        document.getElementById('confirm-modal').classList.add('hidden');
+        confirmCallback = null;
+      }
+
+      /* ---------------------------------------------------------------
+         7. GLOBAL CHROME: LESSON FILTER BAR & NAVIGATION
+      --------------------------------------------------------------- */
+      function renderGlobalChrome() {
+        document.getElementById('header-word-count').textContent =
+          vocab.length === 1 ? '1 word' : `${vocab.length} words`;
+
+        const lessons = getUniqueLessons();
+        const reviewCount = vocab.filter(w => w.needsReview).length;
+
+        // Lesson suggestions datalist
+        document.getElementById('lesson-suggestions').innerHTML = lessons
+          .map(l => `<option value="${escapeHtml(l)}"></option>`)
+          .join('');
+
+        // Validate current globalFilter
+        if (globalFilter.startsWith('lesson:')) {
+          const targetLesson = globalFilter.slice(7);
+          if (!lessons.includes(targetLesson)) {
+            globalFilter = 'all';
+          }
+        }
+
+        // Build Lesson Filter Pills
+        const pills = [
+          { value: 'all', label: `All Words (${vocab.length})` },
+          { value: 'review', label: `Needs Review (${reviewCount})`, isReview: true },
+          ...lessons.map(l => {
+            const count = vocab.filter(w => w.lesson === l).length;
+            return { value: 'lesson:' + l, label: `${l} (${count})` };
+          })
+        ];
+
+        const pillContainer = document.getElementById('global-lesson-pills');
+        pillContainer.innerHTML = pills
+          .map(p => {
+            const active = globalFilter === p.value;
+            let cls = 'global-pill-btn shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ';
+            if (active) {
+              cls += p.isReview
+                ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
+                : 'bg-indigo-600 text-white border-indigo-600 shadow-xs';
+            } else {
+              cls += p.isReview && reviewCount > 0
+                ? 'bg-amber-50/80 text-amber-800 border-amber-200 hover:bg-amber-100/80'
+                : 'bg-stone-100/80 text-stone-600 border-stone-200/70 hover:bg-stone-200/70';
+            }
+            return `<button type="button" data-gdeck="${escapeHtml(p.value)}" class="${cls}">${escapeHtml(p.label)}</button>`;
+          })
+          .join('');
+      }
+
+      function setGlobalFilter(newFilter) {
+        globalFilter = newFilter;
+        renderGlobalChrome();
+        // Rebuild decks for active & background modes cleanly
+        buildTypeQueue();
+        loadNextMcQuestion();
+        buildFlashcardDeck(false);
+        loadNextDrillWord();
+        if (activeTab === 'bank') renderWordBank();
+      }
+
+      function switchTab(tabName) {
+        activeTab = tabName;
+
+        document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+        const target = document.getElementById('view-' + tabName);
+        if (target) target.classList.remove('hidden');
+
+        // Hide global filter bar only on "Add Words" tab to keep it uncluttered
+        document.getElementById('global-filter-bar').classList.toggle('hidden', tabName === 'add');
+
+        // Desktop / Tablet nav styling
+        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+          const active = btn.dataset.tab === tabName;
+          btn.className = active
+            ? 'nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-white text-indigo-700 shadow-xs'
+            : 'nav-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 text-stone-600 hover:text-stone-900';
+        });
+
+        // Mobile nav styling
+        document.querySelectorAll('.mobile-tab-btn').forEach(btn => {
+          const active = btn.dataset.tab === tabName;
+          btn.className = active
+            ? 'mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-bold transition-colors text-indigo-600 bg-indigo-50/80'
+            : 'mobile-tab-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-[10px] font-semibold transition-colors text-stone-500 hover:text-stone-800';
+        });
+
+        // Refresh active mode
+        if (tabName === 'type') {
+          if (!typeCurrent) buildTypeQueue();
+          else {
+            const inp = document.getElementById('type-input');
+            if (!typeAnswered) setTimeout(() => inp.focus(), 40);
+          }
+        } else if (tabName === 'choice') {
+          if (!mcCurrent) loadNextMcQuestion();
+        } else if (tabName === 'flashcards') {
+          if (fcQueue.length === 0) buildFlashcardDeck(false);
+          else renderFlashcard();
+        } else if (tabName === 'drill') {
+          if (!drillCurrent) loadNextDrillWord();
+        } else if (tabName === 'bank') {
+          renderWordBank();
+        }
+      }
+
+      /* ---------------------------------------------------------------
+         8. TAB 1: TYPE THE WORD (ACTIVE RECALL)
+      --------------------------------------------------------------- */
+      function buildTypeQueue() {
+        const deck = getActiveDeck();
+        // Prioritize Needs Review words first, shuffled within groups
+        const review = shuffleArray(deck.filter(w => w.needsReview));
+        const regular = shuffleArray(deck.filter(w => !w.needsReview));
+        typeQueue = [...review, ...regular];
+        typeIndex = 0;
+        loadTypeCard();
+      }
+
+      function getExpectedTypeAnswer(item) {
+        const reqArt = document.getElementById('type-req-article').checked;
+        if (reqArt && item.article) return formatFullSpanish(item);
+        return item.word;
+      }
+
+      function buildProgressiveHint(targetStr, level) {
+        // Level 1 reveals first letter of each word; each subsequent level reveals +1 letter across the phrase
+        const words = targetStr.split(' ');
+        let extraReveals = Math.max(0, level - 1);
+
+        const maskedWords = words.map(w => {
+          const chars = Array.from(w);
+          return chars
+            .map((ch, idx) => {
+              if (idx === 0) return ch;
+              if (extraReveals > 0) {
+                extraReveals--;
+                return ch;
+              }
+              return '_';
+            })
+            .join('');
+        });
+        return maskedWords.join('   ');
+      }
+
+      function loadTypeCard() {
+        const card = document.getElementById('type-card');
+        const empty = document.getElementById('type-empty');
+
+        if (typeQueue.length === 0) {
+          typeCurrent = null;
+          card.classList.add('hidden');
+          empty.classList.remove('hidden');
+          return;
+        }
+
+        if (typeIndex >= typeQueue.length) {
+          // Loop seamlessly with a fresh shuffle
+          buildTypeQueue();
+          showToast('Round complete — deck reshuffled!', 'info');
+          return;
+        }
+
+        card.classList.remove('hidden');
+        empty.classList.add('hidden');
+
+        typeCurrent = typeQueue[typeIndex];
+        typeAnswered = false;
+        typeRevealed = false;
+        typeHintLevel = 0;
+
+        document.getElementById('type-lesson-badge').textContent = typeCurrent.lesson || 'General';
+        document.getElementById('type-review-badge').classList.toggle('hidden', !typeCurrent.needsReview);
+        document.getElementById('type-queue-pos').textContent = `${typeIndex + 1} / ${typeQueue.length}`;
+        document.getElementById('type-prompt').textContent = typeCurrent.english;
+
+        // Reset Hint
+        document.getElementById('type-hint-display').classList.add('hidden');
+        document.getElementById('type-hint-text').textContent = '';
+
+        // Reset Input
+        const input = document.getElementById('type-input');
+        input.value = '';
+        input.disabled = false;
+        const reqArt = document.getElementById('type-req-article').checked;
+        input.placeholder = reqArt && typeCurrent.article
+          ? 'Type article + Spanish word...'
+          : 'Type Spanish word...';
+        input.className = 'w-full px-4 py-3.5 rounded-2xl bg-stone-50 border-2 border-stone-200 text-lg font-semibold text-stone-900 placeholder-stone-400 text-center focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all';
+
+        // Reset Feedback & Action Buttons
+        const fb = document.getElementById('type-feedback');
+        fb.classList.add('hidden');
+        fb.innerHTML = '';
+        document.getElementById('type-actions-pre').classList.remove('hidden');
+        document.getElementById('type-actions-post').classList.add('hidden');
+
+        if (activeTab === 'type') {
+          setTimeout(() => input.focus(), 30);
+        }
+      }
+
+      function updateTypeStatsUI() {
+        document.getElementById('type-streak').textContent = typeStreak;
+        document.getElementById('type-accuracy').textContent =
+          typeTotal > 0 ? `${Math.round((typeCorrect / typeTotal) * 100)}%` : '—';
+      }
+
+      function showTypeFeedback(type, htmlMessage) {
+        const fb = document.getElementById('type-feedback');
+        fb.classList.remove('hidden');
+        if (type === 'correct') {
+          fb.className = 'rounded-2xl p-3.5 text-center text-sm font-medium bg-emerald-50 text-emerald-800 border border-emerald-200';
+        } else if (type === 'warn') {
+          fb.className = 'rounded-2xl p-3.5 text-center text-sm font-medium bg-amber-50 text-amber-900 border border-amber-200';
+        } else {
+          fb.className = 'rounded-2xl p-3.5 text-center text-sm font-medium bg-rose-50 text-rose-800 border border-rose-200';
+        }
+        fb.innerHTML = htmlMessage;
+      }
+
+      function finalizeTypeQuestion(isCorrect) {
+        typeAnswered = true;
+        const input = document.getElementById('type-input');
+        input.disabled = true;
+
+        if (isCorrect) {
+          input.className = 'w-full px-4 py-3.5 rounded-2xl bg-emerald-50/70 border-2 border-emerald-400 text-lg font-bold text-emerald-900 text-center transition-all';
+        } else {
+          input.className = 'w-full px-4 py-3.5 rounded-2xl bg-rose-50/70 border-2 border-rose-400 text-lg font-bold text-rose-900 text-center animate-shake transition-all';
+        }
+
+        document.getElementById('type-actions-pre').classList.add('hidden');
+        document.getElementById('type-actions-post').classList.remove('hidden');
+
+        const autoAudio = document.getElementById('type-auto-audio').checked;
+        if (autoAudio && typeCurrent) {
+          speakSpanish(formatFullSpanish(typeCurrent));
+        }
+
+        updateTypeStatsUI();
+      }
+
+      function handleTypeSubmit() {
+        if (!typeCurrent) return;
+        if (typeAnswered) {
+          typeIndex++;
+          loadTypeCard();
+          return;
+        }
+
+        const rawUser = document.getElementById('type-input').value;
+        const userNorm = normalizeInput(rawUser);
+        if (!userNorm) {
+          document.getElementById('type-input').focus();
+          return;
+        }
+
+        const reqArticle = document.getElementById('type-req-article').checked;
+        const strictAccents = document.getElementById('type-strict-accents').checked;
+        const fullExpected = formatFullSpanish(typeCurrent);
+        const fullExpectedNorm = normalizeInput(fullExpected);
+        const wordOnlyNorm = normalizeInput(typeCurrent.word);
+
+        const targetObj = vocab.find(w => w.id === typeCurrent.id);
+        const badgeClass = getBadgeClasses(typeCurrent.gender);
+        const answerPill = `<span class="inline-block px-2 py-0.5 rounded-lg border font-bold ${badgeClass}">${escapeHtml(fullExpected)}</span>`;
+
+        // Determine exact & accent-stripped matches
+        let exactMatch = false;
+        let looseMatch = false;
+
+        if (reqArticle && typeCurrent.article) {
+          exactMatch = userNorm === fullExpectedNorm;
+          looseMatch = stripAccents(userNorm) === stripAccents(fullExpectedNorm);
+        } else {
+          // When article is not required, accept either bare word OR full article + word
+          exactMatch = userNorm === wordOnlyNorm || userNorm === fullExpectedNorm;
+          looseMatch =
+            stripAccents(userNorm) === stripAccents(wordOnlyNorm) ||
+            stripAccents(userNorm) === stripAccents(fullExpectedNorm);
+        }
+
+        typeTotal++;
+
+        if (exactMatch) {
+          typeCorrect++;
+          typeStreak++;
+          if (targetObj) {
+            if (!typeRevealed) targetObj.needsReview = false;
+            targetObj.correctCount = (targetObj.correctCount || 0) + 1;
+            saveVocab();
+          }
+          showTypeFeedback('correct', `¡Correcto! ${answerPill}`);
+          finalizeTypeQuestion(true);
+          return;
+        }
+
+        if (looseMatch && !strictAccents) {
+          typeCorrect++;
+          typeStreak++;
+          if (targetObj) {
+            if (!typeRevealed) targetObj.needsReview = false;
+            targetObj.correctCount = (targetObj.correctCount || 0) + 1;
+            saveVocab();
+          }
+          showTypeFeedback('correct', `Correct! Note the accent: ${answerPill}`);
+          finalizeTypeQuestion(true);
+          return;
+        }
+
+        // Incorrect -> Mark Needs Review
+        typeStreak = 0;
+        if (targetObj) {
+          targetObj.needsReview = true;
+          targetObj.wrongCount = (targetObj.wrongCount || 0) + 1;
+          saveVocab();
+        }
+
+        // Diagnostic 1: Strict accents failure
+        if (looseMatch && strictAccents) {
+          showTypeFeedback('warn', `Almost! Check the accent marks — it's ${answerPill}`);
+          finalizeTypeQuestion(false);
+          return;
+        }
+
+        // Diagnostic 2: Right word, wrong or missing article
+        if (typeCurrent.article) {
+          const userParts = userNorm.split(' ');
+          const userFirst = userParts[0];
+          const userRest = userParts.slice(1).join(' ');
+
+          // Case A: User omitted article completely
+          if (stripAccents(userNorm) === stripAccents(wordOnlyNorm)) {
+            showTypeFeedback(
+              'warn',
+              `Close! Right word, don't forget the article — it's ${answerPill}`
+            );
+            finalizeTypeQuestion(false);
+            return;
+          }
+
+          // Case B: User typed a different Spanish article + correct noun
+          if (VALID_ARTICLES.includes(userFirst) && stripAccents(userRest) === stripAccents(wordOnlyNorm)) {
+            showTypeFeedback(
+              'warn',
+              `Close! Right word, wrong article — it's ${answerPill}, not <em class="line-through opacity-80">${escapeHtml(rawUser.trim())}</em>`
+            );
+            finalizeTypeQuestion(false);
+            return;
+          }
+        }
+
+        // Diagnostic 3: General spelling mismatch
+        showTypeFeedback('error', `Not quite — it's ${answerPill}`);
+        finalizeTypeQuestion(false);
+      }
+
+      function handleTypeHint() {
+        if (!typeCurrent || typeAnswered) return;
+        const targetStr = getExpectedTypeAnswer(typeCurrent);
+        typeHintLevel++;
+        const hintStr = buildProgressiveHint(targetStr, typeHintLevel);
+        document.getElementById('type-hint-text').textContent = hintStr;
+        document.getElementById('type-hint-display').classList.remove('hidden');
+        document.getElementById('type-input').focus();
+      }
+
+      function handleTypeReveal() {
+        if (!typeCurrent || typeAnswered) return;
+        typeRevealed = true;
+        typeStreak = 0;
+        typeTotal++;
+
+        const targetObj = vocab.find(w => w.id === typeCurrent.id);
+        if (targetObj) {
+          targetObj.needsReview = true;
+          targetObj.wrongCount = (targetObj.wrongCount || 0) + 1;
+          saveVocab();
+        }
+
+        const fullExpected = formatFullSpanish(typeCurrent);
+        const badgeClass = getBadgeClasses(typeCurrent.gender);
+        const answerPill = `<span class="inline-block px-2 py-0.5 rounded-lg border font-bold ${badgeClass}">${escapeHtml(fullExpected)}</span>`;
+        showTypeFeedback('warn', `Revealed: ${answerPill} <span class="text-xs opacity-75 ml-1">(flagged for review)</span>`);
+        finalizeTypeQuestion(false);
+      }
+
+      function insertAccentAtCursor(char) {
+        const input = document.getElementById('type-input');
+        if (input.disabled) return;
+        const start = input.selectionStart != null ? input.selectionStart : input.value.length;
+        const end = input.selectionEnd != null ? input.selectionEnd : input.value.length;
+        input.value = input.value.slice(0, start) + char + input.value.slice(end);
+        input.focus();
+        input.setSelectionRange(start + char.length, start + char.length);
+      }
+
+      /* ---------------------------------------------------------------
+         9. TAB 2: MULTIPLE CHOICE
+      --------------------------------------------------------------- */
+      function loadNextMcQuestion() {
+        if (mcAutoTimer) {
+          clearTimeout(mcAutoTimer);
+          mcAutoTimer = null;
+        }
+
+        const deck = getActiveDeck();
+        const card = document.getElementById('mc-card');
+        const empty = document.getElementById('mc-empty');
+
+        if (deck.length === 0 || vocab.length < 2) {
+          mcCurrent = null;
+          card.classList.add('hidden');
+          empty.classList.remove('hidden');
+          return;
+        }
+
+        card.classList.remove('hidden');
+        empty.classList.add('hidden');
+
+        // Pick next word, avoiding immediate repeat & weighting Needs Review
+        const pool = deck.length > 1 && mcCurrent
+          ? deck.filter(w => w.id !== mcCurrent.id)
+          : deck;
+        const weighted = [];
+        pool.forEach(w => {
+          weighted.push(w);
+          if (w.needsReview) weighted.push(w);
+        });
+        mcCurrent = weighted[Math.floor(Math.random() * weighted.length)];
+        mcAnswered = false;
+
+        // Build 3 distractors (preferring same lesson first, then full word bank)
+        const sameLessonOthers = shuffleArray(
+          vocab.filter(w => w.id !== mcCurrent.id && w.lesson === mcCurrent.lesson && w.english !== mcCurrent.english)
+        );
+        const otherBank = shuffleArray(
+          vocab.filter(w => w.id !== mcCurrent.id && w.lesson !== mcCurrent.lesson && w.english !== mcCurrent.english)
+        );
+        const distractors = [...sameLessonOthers, ...otherBank].slice(0, 3);
+        mcOptions = shuffleArray([mcCurrent, ...distractors]);
+
+        // Render Prompt
+        document.getElementById('mc-lesson-badge').textContent = mcCurrent.lesson || 'General';
+        const promptLabel = document.getElementById('mc-prompt-label');
+        const promptEl = document.getElementById('mc-prompt');
+        const audioBtn = document.getElementById('mc-audio-btn');
+
+        if (mcDirection === 'en-es') {
+          promptLabel.textContent = 'Choose the Spanish word';
+          promptEl.innerHTML = `<span>${escapeHtml(mcCurrent.english)}</span>`;
+          audioBtn.classList.add('opacity-40');
+          audioBtn.title = 'Listen (reveals Spanish pronunciation)';
+        } else {
+          promptLabel.textContent = 'Choose the English meaning';
+          const badgeClass = getBadgeClasses(mcCurrent.gender);
+          promptEl.innerHTML = mcCurrent.article
+            ? `<span class="px-2.5 py-0.5 rounded-xl text-xl sm:text-2xl font-extrabold border ${badgeClass}">${escapeHtml(mcCurrent.article)}</span>
+               <span>${escapeHtml(mcCurrent.word)}</span>`
+            : `<span>${escapeHtml(mcCurrent.word)}</span>`;
+          audioBtn.classList.remove('opacity-40');
+        }
+
+        // Render Options
+        const optionsContainer = document.getElementById('mc-options');
+        optionsContainer.innerHTML = mcOptions
+          .map((opt, idx) => {
+            const labelHtml =
+              mcDirection === 'en-es'
+                ? (opt.article
+                    ? `<span class="font-bold text-stone-900">${escapeHtml(opt.article)} ${escapeHtml(opt.word)}</span>`
+                    : `<span class="font-bold text-stone-900">${escapeHtml(opt.word)}</span>`)
+                : `<span class="font-semibold text-stone-800">${escapeHtml(opt.english)}</span>`;
+
+            return `
+              <button type="button" data-mc-idx="${idx}" class="mc-opt-btn relative text-left px-4 py-4 rounded-2xl border-2 border-stone-200 bg-stone-50/60 hover:bg-indigo-50/60 hover:border-indigo-300 transition-all active:scale-[0.98] flex items-center gap-3">
+                <span class="w-6 h-6 shrink-0 rounded-lg bg-white border border-stone-200 text-stone-400 text-xs font-bold flex items-center justify-center">${idx + 1}</span>
+                <span class="text-sm sm:text-base leading-snug">${labelHtml}</span>
+              </button>
+            `;
+          })
+          .join('');
+
+        document.getElementById('mc-feedback').classList.add('hidden');
+        document.getElementById('mc-next-wrap').classList.add('hidden');
+      }
+
+      function handleMcChoice(idx) {
+        if (!mcCurrent || mcAnswered || !mcOptions[idx]) return;
+        mcAnswered = true;
+        mcTotal++;
+
+        const chosen = mcOptions[idx];
+        const isCorrect = chosen.id === mcCurrent.id;
+        const targetObj = vocab.find(w => w.id === mcCurrent.id);
+        const fb = document.getElementById('mc-feedback');
+
+        const buttons = document.querySelectorAll('.mc-opt-btn');
+        buttons.forEach((btn, i) => {
+          btn.disabled = true;
+          const opt = mcOptions[i];
+          if (opt.id === mcCurrent.id) {
+            btn.className = 'mc-opt-btn relative text-left px-4 py-4 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 transition-all flex items-center gap-3';
+          } else if (i === idx && !isCorrect) {
+            btn.className = 'mc-opt-btn relative text-left px-4 py-4 rounded-2xl border-2 border-rose-500 bg-rose-50 text-rose-900 animate-shake transition-all flex items-center gap-3';
+          } else {
+            btn.classList.add('opacity-45');
+          }
+        });
+
+        speakSpanish(formatFullSpanish(mcCurrent));
+
+        if (isCorrect) {
+          mcCorrect++;
+          mcStreak++;
+          if (targetObj) {
+            targetObj.correctCount = (targetObj.correctCount || 0) + 1;
+            saveVocab();
+          }
+          fb.className = 'rounded-2xl p-3 text-center text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+          fb.innerHTML = `¡Correcto! ${escapeHtml(formatFullSpanish(mcCurrent))} — ${escapeHtml(mcCurrent.english)}`;
+          fb.classList.remove('hidden');
+
+          mcAutoTimer = setTimeout(() => {
+            loadNextMcQuestion();
+          }, 1050);
+        } else {
+          mcStreak = 0;
+          if (targetObj) {
+            targetObj.needsReview = true;
+            targetObj.wrongCount = (targetObj.wrongCount || 0) + 1;
+            saveVocab();
+          }
+          fb.className = 'rounded-2xl p-3 text-center text-sm font-semibold bg-rose-50 text-rose-700 border border-rose-200';
+          fb.innerHTML = `Correct answer: <strong>${escapeHtml(formatFullSpanish(mcCurrent))}</strong> (${escapeHtml(mcCurrent.english)}) — flagged for review`;
+          fb.classList.remove('hidden');
+          document.getElementById('mc-next-wrap').classList.remove('hidden');
+        }
+
+        document.getElementById('mc-streak').textContent = mcStreak;
+        document.getElementById('mc-accuracy').textContent = `${Math.round((mcCorrect / mcTotal) * 100)}%`;
+      }
+
+      /* ---------------------------------------------------------------
+         10. TAB 3: FLASHCARDS
+      --------------------------------------------------------------- */
+      function buildFlashcardDeck(shouldShuffle = false) {
+        const items = getActiveDeck();
+        const review = items.filter(w => w.needsReview);
+        const regular = items.filter(w => !w.needsReview);
+        fcQueue = shouldShuffle
+          ? [...shuffleArray(review), ...shuffleArray(regular)]
+          : [...review, ...regular];
+        fcIndex = 0;
+        fcFlipped = false;
+        fcSessionMissed = 0;
+        renderFlashcard();
+      }
+
+      function renderFlashcard() {
+        const cardWrapper = document.getElementById('fc-card-wrapper');
+        const gradeControls = document.getElementById('fc-grade-controls');
+        const emptyState = document.getElementById('fc-empty-state');
+        const cardEl = document.getElementById('fc-card');
+        const progressText = document.getElementById('fc-progress-text');
+        const progressBar = document.getElementById('fc-progress-bar');
+
+        if (fcQueue.length === 0) {
+          cardWrapper.classList.add('hidden');
+          gradeControls.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+          document.getElementById('fc-empty-icon').textContent = '📚';
+          document.getElementById('fc-empty-title').textContent = 'No cards in this deck';
+          document.getElementById('fc-empty-desc').textContent =
+            globalFilter === 'review'
+              ? 'No words are currently marked as "Needs Review". Great job!'
+              : 'Select another lesson above or add new words.';
+          document.getElementById('fc-restart-btn').textContent = 'Show All Words';
+          document.getElementById('fc-review-missed-btn').classList.add('hidden');
+          progressText.textContent = '0 / 0';
+          progressBar.style.width = '0%';
+          return;
+        }
+
+        if (fcIndex >= fcQueue.length) {
+          cardWrapper.classList.add('hidden');
+          gradeControls.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+          document.getElementById('fc-empty-icon').textContent = '✓';
+          document.getElementById('fc-empty-title').textContent = 'Session Complete!';
+          document.getElementById('fc-empty-desc').textContent =
+            fcSessionMissed > 0
+              ? `You finished this deck and flagged ${fcSessionMissed} card${fcSessionMissed === 1 ? '' : 's'} for extra practice.`
+              : `Awesome work! You cleared every card in this deck.`;
+          document.getElementById('fc-restart-btn').textContent = 'Study Again';
+          document.getElementById('fc-review-missed-btn').classList.toggle('hidden', !vocab.some(w => w.needsReview));
+          progressText.textContent = `${fcQueue.length} / ${fcQueue.length}`;
+          progressBar.style.width = '100%';
+          return;
+        }
+
+        cardWrapper.classList.remove('hidden');
+        gradeControls.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+
+        const item = fcQueue[fcIndex];
+        cardEl.classList.toggle('rotate-y-180', fcFlipped);
+
+        progressText.textContent = `${fcIndex + 1} / ${fcQueue.length}`;
+        progressBar.style.width = `${Math.round(((fcIndex + 1) / fcQueue.length) * 100)}%`;
+
+        document.getElementById('fc-front-meta').textContent = item.lesson || 'General';
+        document.getElementById('fc-back-meta').textContent = item.lesson || 'General';
+        document.getElementById('fc-review-badge').classList.toggle('hidden', !item.needsReview);
+
+        const badgeClass = getBadgeClasses(item.gender);
+        const spanishRichHtml = item.article
+          ? `<span class="px-3 py-1 rounded-xl text-xl sm:text-2xl font-extrabold border ${badgeClass}">${escapeHtml(item.article)}</span>
+             <span class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">${escapeHtml(item.word)}</span>`
+          : `<span class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">${escapeHtml(item.word)}</span>`;
+
+        const spanishHiddenArticleHtml = item.article
+          ? `<span class="px-3 py-1 rounded-xl text-xl sm:text-2xl font-bold border-2 border-dashed border-stone-300 text-stone-400 bg-stone-50">___</span>
+             <span class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">${escapeHtml(item.word)}</span>`
+          : `<span class="text-3xl sm:text-4xl font-extrabold tracking-tight text-stone-900">${escapeHtml(item.word)}</span>`;
+
+        const englishHtml = `<span class="text-2xl sm:text-3xl font-bold text-stone-800">${escapeHtml(item.english)}</span>`;
+        const frontAudioBtn = document.getElementById('fc-front-audio');
+
+        if (fcDirection === 'es-en') {
+          document.getElementById('fc-front-hint').textContent = 'Spanish';
+          document.getElementById('fc-front-content').innerHTML = fcHideArticle ? spanishHiddenArticleHtml : spanishRichHtml;
+          frontAudioBtn.classList.remove('hidden');
+
+          document.getElementById('fc-back-hint').textContent = 'English';
+          document.getElementById('fc-back-content').innerHTML = englishHtml;
+          document.getElementById('fc-back-sub').innerHTML =
+            `<span class="inline-flex items-center px-2.5 py-1 rounded-lg border text-xs font-bold ${badgeClass}">${escapeHtml(formatFullSpanish(item))}</span>`;
+        } else {
+          document.getElementById('fc-front-hint').textContent = 'English';
+          document.getElementById('fc-front-content').innerHTML = englishHtml;
+          frontAudioBtn.classList.add('hidden');
+
+          document.getElementById('fc-back-hint').textContent = 'Spanish';
+          document.getElementById('fc-back-content').innerHTML = spanishRichHtml;
+          document.getElementById('fc-back-sub').textContent = item.english;
+        }
+      }
+
+      function gradeFlashcard(gotIt) {
+        if (fcIndex >= fcQueue.length) return;
+        const current = fcQueue[fcIndex];
+        const target = vocab.find(w => w.id === current.id);
+        if (target) {
+          if (gotIt) {
+            target.needsReview = false;
+            target.correctCount = (target.correctCount || 0) + 1;
+          } else {
+            target.needsReview = true;
+            target.wrongCount = (target.wrongCount || 0) + 1;
+            fcSessionMissed++;
+            // Re-queue 3 slots ahead so you practice missed cards sooner
+            const reinsertPos = Math.min(fcIndex + 3, fcQueue.length);
+            fcQueue.splice(reinsertPos, 0, target);
+          }
+          saveVocab();
+        }
+        fcFlipped = false;
+        fcIndex++;
+        renderFlashcard();
+      }
+
+      /* ---------------------------------------------------------------
+         11. TAB 4: GENDER DRILL
+      --------------------------------------------------------------- */
+      function loadNextDrillWord() {
+        if (drillAutoTimer) {
+          clearTimeout(drillAutoTimer);
+          drillAutoTimer = null;
+        }
+
+        const pool = getActiveDeck().filter(w => DEFINITE_ARTICLES.includes(w.article));
+        const card = document.getElementById('drill-card');
+        const empty = document.getElementById('drill-empty');
+
+        if (pool.length === 0) {
+          drillCurrent = null;
+          card.classList.add('hidden');
+          empty.classList.remove('hidden');
+          return;
+        }
+
+        card.classList.remove('hidden');
+        empty.classList.add('hidden');
+
+        const candidates = pool.length > 1 && drillCurrent
+          ? pool.filter(w => w.id !== drillCurrent.id)
+          : pool;
+        const weighted = [];
+        candidates.forEach(w => {
+          weighted.push(w);
+          if (w.needsReview) weighted.push(w);
+        });
+
+        drillCurrent = weighted[Math.floor(Math.random() * weighted.length)];
+        drillAnswered = false;
+
+        document.getElementById('drill-lesson-badge').textContent = drillCurrent.lesson || 'General';
+        document.getElementById('drill-noun').textContent = drillCurrent.word;
+        document.getElementById('drill-english').textContent = drillCurrent.english;
+
+        const blankEl = document.getElementById('drill-blank');
+        blankEl.textContent = '___';
+        blankEl.className = 'inline-flex items-center justify-center min-w-[70px] px-3 py-1 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 text-stone-400 transition-all';
+
+        document.getElementById('drill-feedback').innerHTML = '';
+        document.getElementById('drill-next-wrap').classList.add('hidden');
+
+        document.querySelectorAll('.drill-opt-btn').forEach(btn => {
+          btn.disabled = false;
+          const art = btn.dataset.article;
+          const isMasc = art === 'el' || art === 'los';
+          btn.className = isMasc
+            ? 'drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-blue-200 bg-blue-50/50 hover:bg-blue-100/70 text-blue-800 font-bold text-xl transition-all active:scale-95'
+            : 'drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-rose-200 bg-rose-50/50 hover:bg-rose-100/70 text-rose-800 font-bold text-xl transition-all active:scale-95';
+        });
+      }
+
+      function handleDrillAnswer(chosenArticle) {
+        if (!drillCurrent || drillAnswered) return;
+        drillAnswered = true;
+        drillTotal++;
+
+        const isCorrect = chosenArticle === drillCurrent.article;
+        const target = vocab.find(w => w.id === drillCurrent.id);
+        const blankEl = document.getElementById('drill-blank');
+        const feedbackEl = document.getElementById('drill-feedback');
+
+        speakSpanish(formatFullSpanish(drillCurrent));
+
+        if (isCorrect) {
+          drillCorrect++;
+          drillStreak++;
+          if (target) {
+            target.correctCount = (target.correctCount || 0) + 1;
+            saveVocab();
+          }
+
+          blankEl.textContent = drillCurrent.article;
+          blankEl.className = 'inline-flex items-center justify-center min-w-[70px] px-3 py-1 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 transition-all';
+          feedbackEl.innerHTML = `<span class="text-emerald-600">¡Correcto! ${escapeHtml(formatFullSpanish(drillCurrent))}</span>`;
+
+          document.querySelectorAll('.drill-opt-btn').forEach(btn => {
+            btn.disabled = true;
+            if (btn.dataset.article === chosenArticle) {
+              btn.className = 'drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-emerald-500 bg-emerald-500 text-white font-bold text-xl transition-all shadow-sm';
+            } else {
+              btn.classList.add('opacity-40');
+            }
+          });
+
+          drillAutoTimer = setTimeout(() => {
+            loadNextDrillWord();
+          }, 950);
+        } else {
+          drillStreak = 0;
+          if (target) {
+            target.needsReview = true;
+            target.wrongCount = (target.wrongCount || 0) + 1;
+            saveVocab();
+          }
+
+          const badgeClass = getBadgeClasses(drillCurrent.gender);
+          blankEl.textContent = drillCurrent.article;
+          blankEl.className = `inline-flex items-center justify-center min-w-[70px] px-3 py-1 rounded-2xl border-2 ${badgeClass} transition-all`;
+          feedbackEl.innerHTML = `<span class="text-rose-600">It's <strong class="underline">${escapeHtml(formatFullSpanish(drillCurrent))}</strong> — flagged for review</span>`;
+
+          document.querySelectorAll('.drill-opt-btn').forEach(btn => {
+            btn.disabled = true;
+            if (btn.dataset.article === chosenArticle) {
+              btn.className = 'drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-rose-500 bg-rose-500 text-white font-bold text-xl transition-all animate-shake';
+            } else if (btn.dataset.article === drillCurrent.article) {
+              btn.className = 'drill-opt-btn relative py-4 px-3 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-xl transition-all ring-2 ring-emerald-300';
+            } else {
+              btn.classList.add('opacity-35');
+            }
+          });
+
+          document.getElementById('drill-next-wrap').classList.remove('hidden');
+        }
+
+        document.getElementById('drill-streak').textContent = drillStreak;
+        document.getElementById('drill-accuracy').textContent = `${Math.round((drillCorrect / drillTotal) * 100)}%`;
+      }
+
+      /* ---------------------------------------------------------------
+         12. TAB 5: ADD WORDS (SMART BULK PARSER + QUICK ADD)
+      --------------------------------------------------------------- */
+      function extractLeadingArticle(phrase) {
+        const parts = phrase.trim().split(/\s+/);
+        if (parts.length >= 2 && VALID_ARTICLES.includes(parts[0].toLowerCase())) {
+          return { article: parts[0].toLowerCase(), word: parts.slice(1).join(' ') };
+        }
+        return { article: '', word: phrase.trim() };
+      }
+
+      function parseBulkLine(line, orderMode = 'auto') {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+
+        let left = '';
+        let right = '';
+
+        const spacedSeparators = ['\t', ' - ', ' — ', ' – ', ' = ', ' | ', ' : '];
+        for (const sep of spacedSeparators) {
+          const idx = trimmed.indexOf(sep);
+          if (idx !== -1) {
+            left = trimmed.slice(0, idx).trim();
+            right = trimmed.slice(idx + sep.length).trim();
+            break;
+          }
+        }
+
+        if (!left || !right) {
+          const match = trimmed.match(/^(.+?)\s*[-=|:,]\s*(.+)$/);
+          if (match) {
+            left = match[1].trim();
+            right = match[2].trim();
+          }
+        }
+
+        if (!left || !right) return null;
+
+        // Clean leading numbering/bullets
+        left = left.replace(/^(\d+[\.\)]\s*|•\s*|\*\s*)/, '').trim();
+
+        let spanishRaw = left;
+        let englishRaw = right;
+
+        if (orderMode === 'en-es') {
+          spanishRaw = right;
+          englishRaw = left;
+        } else if (orderMode === 'auto') {
+          const leftArt = extractLeadingArticle(left);
+          const rightArt = extractLeadingArticle(right);
+          // If right side starts with a Spanish article and left doesn't, treat as English - Spanish
+          if (!leftArt.article && rightArt.article) {
+            spanishRaw = right;
+            englishRaw = left;
+          }
+        }
+
+        const { article, word } = extractLeadingArticle(spanishRaw);
+        return {
+          article,
+          word,
+          english: englishRaw,
+          gender: getGenderFromArticle(article)
+        };
+      }
+
+      function updateBulkPreview() {
+        const text = document.getElementById('bulk-textarea').value;
+        const orderMode = document.getElementById('bulk-order').value;
+        const lines = text.split(/\r?\n/);
+        parsedBulkItems = [];
+
+        lines.forEach(line => {
+          const parsed = parseBulkLine(line, orderMode);
+          if (parsed) parsedBulkItems.push(parsed);
+        });
+
+        const previewBox = document.getElementById('bulk-preview-box');
+        const previewList = document.getElementById('bulk-preview-list');
+        const countBadge = document.getElementById('bulk-parsed-count');
+        const importBtn = document.getElementById('bulk-import-btn');
+
+        if (parsedBulkItems.length === 0) {
+          previewBox.classList.add('hidden');
+          return;
+        }
+
+        previewBox.classList.remove('hidden');
+        countBadge.textContent = `${parsedBulkItems.length} ready`;
+        importBtn.textContent = `Add ${parsedBulkItems.length} Word${parsedBulkItems.length === 1 ? '' : 's'}`;
+
+        previewList.innerHTML = parsedBulkItems
+          .map(item => {
+            const badgeClass = getBadgeClasses(item.gender);
+            const articleBadge = item.article
+              ? `<span class="inline-block px-2 py-0.5 rounded-md text-xs font-bold border ${badgeClass}">${escapeHtml(item.article)}</span>`
+              : `<span class="inline-block px-2 py-0.5 rounded-md text-[11px] font-semibold border ${badgeClass}">other</span>`;
+            return `
+              <div class="flex items-center justify-between gap-3 bg-white px-3 py-2 rounded-xl border border-stone-200/70 text-sm">
+                <div class="flex items-center gap-2 min-w-0">
+                  ${articleBadge}
+                  <span class="font-semibold text-stone-900 truncate">${escapeHtml(item.word)}</span>
+                </div>
+                <span class="text-stone-500 text-xs sm:text-sm truncate">${escapeHtml(item.english)}</span>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      function commitBulkImport() {
+        if (parsedBulkItems.length === 0) return;
+        const lesson = document.getElementById('bulk-lesson').value.trim() || DEFAULT_LESSON;
+        const now = Date.now();
+
+        const newItems = parsedBulkItems.map((item, idx) => ({
+          id: generateId() + idx,
+          article: item.article,
+          word: item.word,
+          english: item.english,
+          lesson,
+          gender: item.gender,
+          needsReview: false,
+          correctCount: 0,
+          wrongCount: 0,
+          createdAt: now + idx
+        }));
+
+        vocab = [...newItems, ...vocab];
+        saveVocab();
+
+        document.getElementById('bulk-textarea').value = '';
+        parsedBulkItems = [];
+        updateBulkPreview();
+
+        // Automatically switch global deck to the newly imported lesson so user can study it right away
+        setGlobalFilter('lesson:' + lesson);
+        showToast(`Added ${newItems.length} word${newItems.length === 1 ? '' : 's'} to "${lesson}"!`);
+      }
+
+      /* ---------------------------------------------------------------
+         13. TAB 6: WORD BANK (SEARCH, FILTER, INLINE EDIT, IMPORT/EXPORT)
+      --------------------------------------------------------------- */
+      function renderWordBank() {
+        const listEl = document.getElementById('bank-list');
+        const q = bankSearch.toLowerCase().trim();
+
+        document.querySelectorAll('.bank-gfilter-btn').forEach(btn => {
+          const active = btn.dataset.gfilter === bankGenderFilter;
+          btn.className = active
+            ? 'bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-stone-900 text-white'
+            : 'bank-gfilter-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors bg-stone-100 text-stone-600 hover:bg-stone-200/80';
+        });
+
+        // Start from global active deck so the top Lesson Filter stays consistent
+        const baseList = getActiveDeck();
+        const filtered = baseList.filter(item => {
+          if (bankGenderFilter === 'review' && !item.needsReview) return false;
+          if (bankGenderFilter === 'm' && item.gender !== 'm') return false;
+          if (bankGenderFilter === 'f' && item.gender !== 'f') return false;
+          if (bankGenderFilter === 'none' && item.gender !== 'none') return false;
+
+          if (q) {
+            const hay = `${item.article} ${item.word} ${item.english} ${item.lesson}`.toLowerCase();
+            return hay.includes(q);
+          }
+          return true;
+        });
+
+        document.getElementById('bank-count-label').textContent =
+          `Showing ${filtered.length} word${filtered.length === 1 ? '' : 's'} in current view (${vocab.length} total)`;
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = `
+            <div class="bg-white rounded-2xl border border-stone-200/80 p-8 text-center text-sm text-stone-500">
+              No vocabulary words match your current filter.
+            </div>
+          `;
+          return;
+        }
+
+        listEl.innerHTML = filtered
+          .map(item => {
+            // Inline Edit Row
+            if (bankEditingId === item.id) {
+              const artOptions = ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', '']
+                .map(a => `<option value="${a}" ${item.article === a ? 'selected' : ''}>${a || 'none'}</option>`)
+                .join('');
+
+              return `
+                <form data-inline-edit-id="${escapeHtml(item.id)}" class="inline-edit-form bg-indigo-50/50 rounded-2xl border-2 border-indigo-200 p-3.5 space-y-2.5 animate-fade-in">
+                  <div class="grid grid-cols-12 gap-2">
+                    <div class="col-span-4 sm:col-span-2">
+                      <select name="article" class="w-full px-2.5 py-2 rounded-xl bg-white border border-stone-200 text-xs font-semibold">${artOptions}</select>
+                    </div>
+                    <div class="col-span-8 sm:col-span-4">
+                      <input name="word" type="text" required value="${escapeHtml(item.word)}" placeholder="Spanish word" class="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs font-semibold" />
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <input name="english" type="text" required value="${escapeHtml(item.english)}" placeholder="English" class="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs" />
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                      <input name="lesson" type="text" list="lesson-suggestions" value="${escapeHtml(item.lesson || '')}" placeholder="Lesson" class="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs" />
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-end gap-2">
+                    <button type="button" data-action="cancel-edit" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:bg-white">Cancel</button>
+                    <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs">Save</button>
+                  </div>
+                </form>
+              `;
+            }
+
+            // Standard Display Row
+            const badgeClass = getBadgeClasses(item.gender);
+            const articleHtml = item.article
+              ? `<span class="inline-flex items-center justify-center min-w-[38px] px-2 py-0.5 rounded-lg text-xs font-bold border ${badgeClass}">${escapeHtml(item.article)}</span>`
+              : `<span class="inline-flex items-center justify-center min-w-[38px] px-2 py-0.5 rounded-lg text-[11px] font-semibold border ${badgeClass}">other</span>`;
+
+            const starActive = item.needsReview
+              ? 'text-amber-500 bg-amber-50 hover:bg-amber-100'
+              : 'text-stone-300 hover:text-amber-500 hover:bg-stone-100';
+
+            return `
+              <div class="bg-white rounded-2xl border border-stone-200/80 px-3.5 sm:px-4 py-3 flex items-center justify-between gap-2.5 hover:border-stone-300 transition-colors">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                  ${articleHtml}
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <span class="font-bold text-stone-900 text-sm sm:text-base truncate">${escapeHtml(item.word)}</span>
+                      <span class="text-stone-300 hidden sm:inline">•</span>
+                      <span class="text-stone-600 text-sm truncate">${escapeHtml(item.english)}</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="text-[11px] font-medium text-stone-400">${escapeHtml(item.lesson || 'General')}</span>
+                      ${item.needsReview ? '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Review</span>' : ''}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-0.5 shrink-0">
+                  <button data-action="toggle-review" data-id="${escapeHtml(item.id)}" type="button" class="p-2 rounded-xl transition-colors ${starActive}" title="Toggle Needs Review">
+                    <svg class="w-4 h-4" fill="${item.needsReview ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  </button>
+                  <button data-action="speak" data-id="${escapeHtml(item.id)}" type="button" class="p-2 rounded-xl text-stone-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Pronounce">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  </button>
+                  <button data-action="edit" data-id="${escapeHtml(item.id)}" type="button" class="p-2 rounded-xl text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors" title="Edit inline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button data-action="delete" data-id="${escapeHtml(item.id)}" type="button" class="p-2 rounded-xl text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      /* ---------------------------------------------------------------
+         14. EXPORT & FILE IMPORT HELPERS
+      --------------------------------------------------------------- */
+      function buildPlainTextExport() {
+        return vocab.map(w => `${formatFullSpanish(w)} - ${w.english}`).join('\n');
+      }
+
+      function copyVocabularyToClipboard() {
+        const text = buildPlainTextExport();
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.setAttribute('readonly', '');
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+          document.execCommand('copy');
+          showToast(`Copied ${vocab.length} words to clipboard!`);
+        } catch (err) {
+          showToast('Copy failed. Try downloading .TXT instead.', 'error');
+        }
+        document.body.removeChild(temp);
+      }
+
+      function downloadFile(filename, content, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function handleImportFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          const content = String(e.target.result || '');
+          const isJson = file.name.toLowerCase().endsWith('.json') || content.trim().startsWith('[');
+          const existingSigs = new Set(vocab.map(wordSignature));
+          let imported = 0;
+
+          if (isJson) {
+            try {
+              const parsed = JSON.parse(content);
+              if (!Array.isArray(parsed)) throw new Error('JSON must be an array of words');
+              parsed.forEach((raw, idx) => {
+                if (!raw || !raw.word || !raw.english) return;
+                const rec = {
+                  id: generateId() + idx,
+                  article: raw.article || '',
+                  word: String(raw.word).trim(),
+                  english: String(raw.english).trim(),
+                  lesson: String(raw.lesson || 'Imported').trim(),
+                  gender: getGenderFromArticle(raw.article),
+                  needsReview: Boolean(raw.needsReview),
+                  correctCount: Number(raw.correctCount) || 0,
+                  wrongCount: Number(raw.wrongCount) || 0,
+                  createdAt: Date.now() + idx
+                };
+                if (!existingSigs.has(wordSignature(rec))) {
+                  vocab.unshift(rec);
+                  existingSigs.add(wordSignature(rec));
+                  imported++;
+                }
+              });
+            } catch (err) {
+              showToast('Could not read JSON file. Check format.', 'error');
+              return;
+            }
+          } else {
+            const lessonName = file.name.replace(/\.txt$/i, '') || 'Imported';
+            content.split(/\r?\n/).forEach((line, idx) => {
+              const parsed = parseBulkLine(line, 'auto');
+              if (!parsed) return;
+              const rec = {
+                id: generateId() + idx,
+                article: parsed.article,
+                word: parsed.word,
+                english: parsed.english,
+                lesson: lessonName,
+                gender: parsed.gender,
+                needsReview: false,
+                correctCount: 0,
+                wrongCount: 0,
+                createdAt: Date.now() + idx
+              };
+              if (!existingSigs.has(wordSignature(rec))) {
+                vocab.unshift(rec);
+                existingSigs.add(wordSignature(rec));
+                imported++;
+              }
+            });
+          }
+
+          if (imported > 0) {
+            saveVocab();
+            renderWordBank();
+            buildTypeQueue();
+            buildFlashcardDeck(false);
+            showToast(`Imported ${imported} new word${imported === 1 ? '' : 's'}!`);
+          } else {
+            showToast('No new words found (duplicates were skipped).', 'info');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      /* ---------------------------------------------------------------
+         15. EVENT BINDINGS & KEYBOARD SHORTCUTS
+      --------------------------------------------------------------- */
+      function bindEvents() {
+        // Navigation Tabs
+        document.querySelectorAll('.nav-tab-btn, .mobile-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+
+        // Global Lesson Filter Pills (delegated)
+        document.getElementById('global-lesson-pills').addEventListener('click', e => {
+          const btn = e.target.closest('button[data-gdeck]');
+          if (btn) setGlobalFilter(btn.dataset.gdeck);
+        });
+
+        // --- Tab 1: Type the Word ---
+        document.getElementById('type-form').addEventListener('submit', e => {
+          e.preventDefault();
+          handleTypeSubmit();
+        });
+        document.getElementById('type-hint-btn').addEventListener('click', handleTypeHint);
+        document.getElementById('type-reveal-btn').addEventListener('click', handleTypeReveal);
+        document.getElementById('type-next-btn').addEventListener('click', () => {
+          typeIndex++;
+          loadTypeCard();
+        });
+        document.getElementById('type-audio-btn').addEventListener('click', () => {
+          if (typeCurrent) speakSpanish(formatFullSpanish(typeCurrent));
+        });
+        document.getElementById('type-req-article').addEventListener('change', () => {
+          if (typeCurrent && !typeAnswered) {
+            const reqArt = document.getElementById('type-req-article').checked;
+            document.getElementById('type-input').placeholder =
+              reqArt && typeCurrent.article ? 'Type article + Spanish word...' : 'Type Spanish word...';
+          }
+        });
+
+        // Quick-tap accent buttons (keep focus in input)
+        document.querySelectorAll('.accent-btn').forEach(btn => {
+          btn.addEventListener('mousedown', e => e.preventDefault());
+          btn.addEventListener('click', () => insertAccentAtCursor(btn.dataset.accent));
+        });
+
+        // --- Tab 2: Multiple Choice ---
+        document.getElementById('mc-dir-btn').addEventListener('click', e => {
+          mcDirection = mcDirection === 'en-es' ? 'es-en' : 'en-es';
+          e.currentTarget.textContent = mcDirection === 'en-es' ? 'EN → ES' : 'ES → EN';
+          loadNextMcQuestion();
+        });
+        document.getElementById('mc-options').addEventListener('click', e => {
+          const btn = e.target.closest('button[data-mc-idx]');
+          if (btn) handleMcChoice(Number(btn.dataset.mcIdx));
+        });
+        document.getElementById('mc-next-btn').addEventListener('click', loadNextMcQuestion);
+        document.getElementById('mc-audio-btn').addEventListener('click', () => {
+          if (mcCurrent) speakSpanish(formatFullSpanish(mcCurrent));
+        });
+
+        // --- Tab 3: Flashcards ---
+        document.getElementById('fc-dir-btn').addEventListener('click', e => {
+          fcDirection = fcDirection === 'es-en' ? 'en-es' : 'es-en';
+          e.currentTarget.textContent = fcDirection === 'es-en' ? 'ES → EN' : 'EN → ES';
+          fcFlipped = false;
+          renderFlashcard();
+        });
+        document.getElementById('fc-shuffle-btn').addEventListener('click', () => {
+          buildFlashcardDeck(true);
+          showToast('Deck shuffled', 'info');
+        });
+        document.getElementById('fc-hide-article').addEventListener('change', e => {
+          fcHideArticle = e.target.checked;
+          renderFlashcard();
+        });
+        document.getElementById('fc-card').addEventListener('click', () => {
+          fcFlipped = !fcFlipped;
+          document.getElementById('fc-card').classList.toggle('rotate-y-180', fcFlipped);
+        });
+        document.getElementById('fc-front-audio').addEventListener('click', e => {
+          e.stopPropagation();
+          const item = fcQueue[fcIndex];
+          if (item) speakSpanish(fcHideArticle ? item.word : formatFullSpanish(item));
+        });
+        document.getElementById('fc-back-audio').addEventListener('click', e => {
+          e.stopPropagation();
+          const item = fcQueue[fcIndex];
+          if (item) speakSpanish(formatFullSpanish(item));
+        });
+        document.getElementById('fc-btn-again').addEventListener('click', () => gradeFlashcard(false));
+        document.getElementById('fc-btn-gotit').addEventListener('click', () => gradeFlashcard(true));
+        document.getElementById('fc-restart-btn').addEventListener('click', () => {
+          if (fcQueue.length === 0) setGlobalFilter('all');
+          else buildFlashcardDeck(true);
+        });
+        document.getElementById('fc-review-missed-btn').addEventListener('click', () => {
+          setGlobalFilter('review');
+        });
+
+        // --- Tab 4: Gender Drill ---
+        document.querySelectorAll('.drill-opt-btn').forEach(btn => {
+          btn.addEventListener('click', () => handleDrillAnswer(btn.dataset.article));
+        });
+        document.getElementById('drill-next-btn').addEventListener('click', loadNextDrillWord);
+        document.getElementById('drill-audio-btn').addEventListener('click', () => {
+          if (!drillCurrent) return;
+          speakSpanish(drillAnswered ? formatFullSpanish(drillCurrent) : drillCurrent.word);
+        });
+
+        // --- Tab 5: Add Words ---
+        document.getElementById('bulk-textarea').addEventListener('input', updateBulkPreview);
+        document.getElementById('bulk-order').addEventListener('change', updateBulkPreview);
+        document.getElementById('bulk-import-btn').addEventListener('click', commitBulkImport);
+        document.getElementById('bulk-clear-btn').addEventListener('click', () => {
+          document.getElementById('bulk-textarea').value = '';
+          updateBulkPreview();
+        });
+        document.getElementById('bulk-sample-btn').addEventListener('click', () => {
+          document.getElementById('bulk-lesson').value = 'Lesson 2: Everyday Objects';
+          document.getElementById('bulk-textarea').value =
+`la puerta - door
+la ventana - window
+el teléfono - phone
+table - la mesa
+las llaves - keys
+estudiar - to study`;
+          updateBulkPreview();
+        });
+
+        document.getElementById('quick-add-form').addEventListener('submit', e => {
+          e.preventDefault();
+          const article = document.getElementById('qa-article').value;
+          const word = document.getElementById('qa-word').value.trim();
+          const english = document.getElementById('qa-english').value.trim();
+          const lesson = document.getElementById('qa-lesson').value.trim() || DEFAULT_LESSON;
+          if (!word || !english) return;
+
+          const newItem = {
+            id: generateId(),
+            article,
+            word,
+            english,
+            lesson,
+            gender: getGenderFromArticle(article),
+            needsReview: false,
+            correctCount: 0,
+            wrongCount: 0,
+            createdAt: Date.now()
+          };
+          vocab.unshift(newItem);
+          saveVocab();
+          buildTypeQueue();
+          buildFlashcardDeck(false);
+
+          document.getElementById('qa-word').value = '';
+          document.getElementById('qa-english').value = '';
+          document.getElementById('qa-word').focus();
+          showToast(`Added "${formatFullSpanish(newItem)}"`);
+        });
+
+        // --- Tab 6: Word Bank ---
+        document.getElementById('bank-search').addEventListener('input', e => {
+          bankSearch = e.target.value;
+          renderWordBank();
+        });
+        document.querySelectorAll('.bank-gfilter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            bankGenderFilter = btn.dataset.gfilter;
+            renderWordBank();
+          });
+        });
+
+        // Delegated clicks & inline edit submit in Word Bank
+        const bankListEl = document.getElementById('bank-list');
+        bankListEl.addEventListener('click', e => {
+          const btn = e.target.closest('button[data-action]');
+          if (!btn) return;
+          const action = btn.dataset.action;
+
+          if (action === 'cancel-edit') {
+            bankEditingId = null;
+            renderWordBank();
+            return;
+          }
+
+          const id = btn.dataset.id;
+          const item = vocab.find(w => w.id === id);
+          if (!item) return;
+
+          if (action === 'speak') {
+            speakSpanish(formatFullSpanish(item));
+          } else if (action === 'toggle-review') {
+            item.needsReview = !item.needsReview;
+            saveVocab();
+            renderWordBank();
+          } else if (action === 'edit') {
+            bankEditingId = id;
+            renderWordBank();
+          } else if (action === 'delete') {
+            openConfirmModal(
+              'Delete Word',
+              `Remove "${formatFullSpanish(item)}" (${item.english}) from your vocabulary?`,
+              () => {
+                vocab = vocab.filter(w => w.id !== id);
+                if (bankEditingId === id) bankEditingId = null;
+                saveVocab();
+                renderWordBank();
+                buildTypeQueue();
+                buildFlashcardDeck(false);
+                showToast('Word deleted', 'info');
+              }
+            );
+          }
+        });
+
+        bankListEl.addEventListener('submit', e => {
+          const form = e.target.closest('form.inline-edit-form');
+          if (!form) return;
+          e.preventDefault();
+          const id = form.dataset.inlineEditId;
+          const item = vocab.find(w => w.id === id);
+          if (!item) return;
+
+          item.article = form.elements.article.value;
+          item.word = form.elements.word.value.trim();
+          item.english = form.elements.english.value.trim();
+          item.lesson = form.elements.lesson.value.trim() || DEFAULT_LESSON;
+          item.gender = getGenderFromArticle(item.article);
+
+          bankEditingId = null;
+          saveVocab();
+          renderWordBank();
+          buildTypeQueue();
+          buildFlashcardDeck(false);
+          showToast('Word updated');
+        });
+
+        // Export / Import / Restore
+        document.getElementById('export-copy-btn').addEventListener('click', copyVocabularyToClipboard);
+        document.getElementById('export-txt-btn').addEventListener('click', () => {
+          downloadFile('basic-spanish-vocab.txt', buildPlainTextExport(), 'text/plain;charset=utf-8');
+          showToast('Downloaded .TXT list');
+        });
+        document.getElementById('export-json-btn').addEventListener('click', () => {
+          downloadFile('basic-spanish-backup.json', JSON.stringify(vocab, null, 2), 'application/json');
+          showToast('Downloaded .JSON backup');
+        });
+        document.getElementById('import-file-input').addEventListener('change', e => {
+          const file = e.target.files && e.target.files[0];
+          if (file) handleImportFile(file);
+          e.target.value = '';
+        });
+        document.getElementById('restore-defaults-btn').addEventListener('click', () => {
+          const { merged, addedCount } = mergeDefaultDecks(vocab);
+          if (addedCount > 0) {
+            vocab = merged;
+            saveVocab();
+            renderWordBank();
+            buildTypeQueue();
+            showToast(`Restored ${addedCount} default word${addedCount === 1 ? '' : 's'}!`);
+          } else {
+            showToast('All default lessons are already in your Word Bank.', 'info');
+          }
+        });
+
+        // Confirmation Modal
+        document.getElementById('confirm-cancel-btn').addEventListener('click', closeConfirmModal);
+        document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+          if (typeof confirmCallback === 'function') confirmCallback();
+          closeConfirmModal();
+        });
+
+        // Global Keyboard Shortcuts
+        document.addEventListener('keydown', e => {
+          const tag = document.activeElement && document.activeElement.tagName;
+          const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+          // In Type the Word, Enter when answered advances to next card even though input is disabled
+          if (activeTab === 'type' && typeAnswered && e.key === 'Enter') {
+            e.preventDefault();
+            typeIndex++;
+            loadTypeCard();
+            return;
+          }
+
+          if (isTyping) return;
+
+          if (activeTab === 'choice') {
+            if (!mcAnswered) {
+              if (e.key >= '1' && e.key <= '4') handleMcChoice(Number(e.key) - 1);
+            } else if (e.key === 'Enter' || e.code === 'Space') {
+              e.preventDefault();
+              loadNextMcQuestion();
+            }
+          } else if (activeTab === 'flashcards') {
+            if (e.code === 'Space') {
+              e.preventDefault();
+              if (fcIndex < fcQueue.length) {
+                fcFlipped = !fcFlipped;
+                document.getElementById('fc-card').classList.toggle('rotate-y-180', fcFlipped);
+              }
+            }
+          } else if (activeTab === 'drill') {
+            if (!drillAnswered) {
+              if (e.key === '1') handleDrillAnswer('el');
+              else if (e.key === '2') handleDrillAnswer('la');
+              else if (e.key === '3') handleDrillAnswer('los');
+              else if (e.key === '4') handleDrillAnswer('las');
+            } else if (e.key === 'Enter' || e.code === 'Space') {
+              e.preventDefault();
+              loadNextDrillWord();
+            }
+          }
+        });
+      }
+
+      /* ---------------------------------------------------------------
+         16. INITIALIZE APP
+      --------------------------------------------------------------- */
+      loadVocab();
+      renderGlobalChrome();
+      bindEvents();
+      buildTypeQueue();
+      loadNextMcQuestion();
+      buildFlashcardDeck(false);
+      loadNextDrillWord();
+      switchTab('type');
+    })();
+  </script>
+</body>
+</html>
